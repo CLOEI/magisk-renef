@@ -56,8 +56,8 @@ def extract_renef_archive(archive_path: Path, dest_dir: Path) -> None:
 
 
 def generate_version_code(project_tag: str) -> int:
-    """Convert '0.3.3-2' -> integer version code for Magisk."""
-    base = project_tag.replace("-", ".")
+    """Convert 'v0.3.3' -> integer version code for Magisk."""
+    base = project_tag.lstrip("v")
     parts = base.split(".")
     # zero-pad each part to 3 digits, join
     try:
@@ -69,10 +69,11 @@ def generate_version_code(project_tag: str) -> int:
 def create_module_prop(path: Path, project_tag: str) -> None:
     version_code = generate_version_code(project_tag)
     update_json_url = "https://github.com/vichhka-git/magisk-renef/releases/latest/download/updater.json"
+    # project_tag already includes 'v' prefix (e.g. v0.3.3)
     content = f"""\
 id=magisk-renef
 name=MagiskRenef
-version=v{project_tag}
+version={project_tag}
 versionCode={version_code}
 author=vichhka
 description=Run renef_server on boot: ⏺️ (not started)
@@ -126,7 +127,7 @@ def fill_module(renef_tag: str, project_tag: str) -> None:
 
     # Write module.prop
     create_module_prop(TMP_DIR / "module.prop", project_tag)
-    print(f"  [module] module.prop written (v{project_tag})")
+    print(f"  [module] module.prop written ({project_tag})")
 
 
 def create_updater_json(project_tag: str) -> None:
@@ -136,8 +137,9 @@ def create_updater_json(project_tag: str) -> None:
         f"/{project_tag}/MagiskRenef-{project_tag}.zip"
     )
     changelog_url = "https://raw.githubusercontent.com/vichhka-git/magisk-renef/refs/heads/main/CHANGELOG.md"
+    # project_tag already includes 'v' prefix (e.g. v0.3.3)
     data = {
-        "version": f"v{project_tag}",
+        "version": project_tag,
         "versionCode": version_code,
         "zipUrl": zip_url,
         "changelog": changelog_url,
@@ -174,7 +176,7 @@ def package_module(project_tag: str) -> None:
 
 
 def do_build(renef_tag: str, project_tag: str) -> None:
-    print(f"\n=== Building MagiskRenef v{project_tag} (renef v{renef_tag}) ===\n")
+    print(f"\n=== Building MagiskRenef {project_tag} (renef {renef_tag}) ===\n")
 
     DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
     BUILD_DIR.mkdir(parents=True, exist_ok=True)

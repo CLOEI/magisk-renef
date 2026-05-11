@@ -15,9 +15,7 @@ def main() -> None:
 
     # Check if renef has updated since our last release
     last_renef_base = last_renef_tag.lstrip("v")
-    last_project_base = (
-        util.strip_revision(last_project_tag) if last_project_tag else ""
-    )
+    last_project_base = last_project_tag.lstrip("v") if last_project_tag else ""
 
     needs_update = force_release or (last_renef_base != last_project_base)
 
@@ -28,13 +26,8 @@ def main() -> None:
             build.do_build(last_renef_tag, "0")
         return
 
-    # Compute new project tag
-    if last_project_base == last_renef_base:
-        # Same renef version, bump revision
-        new_project_tag = util.get_next_revision(last_renef_base)
-    else:
-        # New renef version, start at revision 1
-        new_project_tag = f"{last_renef_base}-1"
+    # Project tags follow renef: e.g. v0.3.3
+    new_project_tag = f"v{last_renef_base}"
 
     print(f"New project tag      : {new_project_tag}")
 

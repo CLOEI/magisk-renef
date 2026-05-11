@@ -34,8 +34,9 @@ def get_last_project_tag() -> str:
 
 def sort_tags(tags: list[str]) -> list[str]:
     def sort_key(tag: str):
-        base = strip_revision(tag)
-        parts = base.split("-")[0].split(".")
+        # Strip leading 'v' and revision suffix for comparison
+        clean = strip_revision(tag).lstrip("v")
+        parts = clean.split(".")
         try:
             return [int(p) for p in parts]
         except ValueError:
