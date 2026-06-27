@@ -22,9 +22,11 @@ chmod +x "$RENEF_AGENT"
 # SELinux: app_data_file context required for dlopen into target processes
 chcon u:object_r:app_data_file:s0 "$RENEF_AGENT" 2>/dev/null || true
 
-# Start renef_server as root from /system/bin (system_file SELinux context)
-# renef_server needs root (uid 0) to read /proc/PID/maps of app processes
-setsid /system/bin/renef_server > /data/local/tmp/renef_server.log 2>&1 &
+# Prefer overlay path; fall back to MODDIR if KernelSU/APatch doesn't expose it
+RENEF_BIN="/system/bin/renef_server"
+[ ! -f "$RENEF_BIN" ] && RENEF_BIN="$MODDIR/system/bin/renef_server"
+
+setsid "$RENEF_BIN" > /data/local/tmp/renef_server.log 2>&1 &
 echo $! > /data/local/tmp/renef_server.pid
 
 # Verify it came up

@@ -22,7 +22,9 @@ if [ -n "$result" ]; then
     sed -i "s/^description=.*/$string/g" $MODPATH/module.prop
 else
     echo "[-] Starting renef_server..."
-    renef_server >> $MODPATH/logs/renef_server.log 2>&1 &
+    RENEF_BIN="/system/bin/renef_server"
+    [ ! -f "$RENEF_BIN" ] && RENEF_BIN="$MODPATH/system/bin/renef_server"
+    "$RENEF_BIN" >> $MODPATH/logs/renef_server.log 2>&1 &
     sleep 1
     check_renef_is_up 3
 fi
